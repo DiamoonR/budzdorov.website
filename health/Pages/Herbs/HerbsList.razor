@@ -1,0 +1,240 @@
+﻿@page "/medicinal-herbs"
+
+@inject IHeadElementHelper HeadElementHelper
+@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+@using static Toolbelt.Blazor.HeadElement.MetaElement
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.WebUtilities
+
+<AuthorizeView>
+    <Authorized>
+        <div class="admin-h1">
+            <health.Areas.Admin.Components.AdminZone.AdminIcons ItemId="0" IconSet="add" OnAdd="(()=>_herbAdminZone.AddClickEvent())">
+                <li>
+                    <health.Areas.Admin.Components.AdminZone.AdminIcon ItemClick="(()=>_pageInfoAdminZone.EditClickEvent(health.Util.Constants.URL_HERB))" ItemId="health.Util.Constants.URL_HERB">
+                        <i class="far fa-edit"></i> Редактировать
+                    </health.Areas.Admin.Components.AdminZone.AdminIcon>
+                </li>
+            </health.Areas.Admin.Components.AdminZone.AdminIcons>
+            <h1>@_pageName</h1>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <h1>@_pageName</h1>
+    </NotAuthorized>
+</AuthorizeView>
+
+<Breadcrumb Data="model.Crumb"></Breadcrumb>
+
+<SearchBlock OnLetterClick="SelectLetter" ModelName="Herb" />
+
+@if (herbs == null)
+{
+    <PageLoader ClassName="in-container" />
+}
+else if (herbs.Count == 0)
+{
+    <div>Ничего не найдено</div>
+}
+else
+{
+    <div class="publication-container">
+        @if (showLoader && !_firstRender)
+        {
+            <PageLoader ClassName="in-container" />
+        }
+        <ul class="publications mt-4">
+            @foreach (var item in herbs)
+            {
+                string _curUrl = $"{_url}/{item.IdName}";
+
+                <li>
+                    @if (isAdmin)
+                    {
+                        <div class="title title-list-admin">
+                            <health.Areas.Admin.Components.AdminZone.AdminIcons ItemId="@item.HerbId" IconSet="edit,remove" OnDelete="(()=>_herbAdminZone.DeleteClickEvent(item.HerbId))" OnEdit="(()=>_herbAdminZone.EditClickEvent(item.HerbId))" />
+                            <NavLink href="@_curUrl">@item.Name</NavLink>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="title">
+                            <NavLink href="@_curUrl">@item.Name</NavLink>
+                        </div>
+                    }
+                    <div class="description">
+                        @item.Description
+                    </div>
+                </li>
+            }
+        </ul>
+
+        <Pager Model="@model.Pager" SelectPage="SelectPager" />
+    </div>
+}
+
+<AuthorizeView>
+    <Authorized>
+        <health.Areas.Admin.Components.AdminZone.HerbAdminZone @ref="_herbAdminZone" OnChange="()=>HerbChangeListEvent()" />
+        <health.Areas.Admin.Components.AdminZone.PageInfoAdminZone @ref="_pageInfoAdminZone" OnChange="()=>PageInfoChangeListEvent()" />
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    bool isAdmin = false;
+    int pageSize = 20;
+    int pageIndex = 1;
+    HerbViewModel model = new HerbViewModel();
+    health.Models.Repository.PageInfoRepository pirep;
+    string _url = Constants.URL_HERB;
+    health.Models.Repository.HerbRepository rep;
+    List<THerb> herbs;
+    string _pageName = string.Empty;
+    health.HelperClasses.Pagination pager;
+    bool showLoader = false;
+    char _selectedLetter = new char();
+
+    health.Areas.Admin.Components.AdminZone.HerbAdminZone _herbAdminZone;
+    health.Areas.Admin.Components.AdminZone.PageInfoAdminZone _pageInfoAdminZone;
+
+
+    bool _firstRender = true;
+
+    string _title;
+    string _description;
+    string _keywords;
+
+    string query = string.Empty;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        _firstRender = firstRender;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _herbAdminZone = new Areas.Admin.Components.AdminZone.HerbAdminZone();
+        _pageInfoAdminZone = new Areas.Admin.Components.AdminZone.PageInfoAdminZone();
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            isAdmin = true;
+        }
+        await UpdatePageData();
+    }
+
+    async Task SelectLetter(char letter)
+    {
+        _selectedLetter = letter;
+        pageIndex = 1;
+        await UpdateList();
+    }
+
+    async Task SelectPager(int page)
+    {
+        pageIndex = page;
+        await UpdateList();
+    }
+
+    async Task UpdateList()
+    {
+        showLoader = true;
+        if (_selectedLetter == '\0')
+        {
+            herbs = await rep.ListAsync(pageIndex, pageSize, isAdmin);
+            pager = new HelperClasses.Pagination();
+
+            pager.CurrentPage = pageIndex;
+            pager.MaxSize = await rep.Count();
+            pager.PageSize = pageSize;
+            pager.NumberSeria = Constants.PAGER_NUMBER_OF_VISIBLE_LINKS;
+            pager.Url = Constants.URL_HERB;
+            pager.Query = "";
+            model.Pager = pager;
+        }
+        else
+        {
+            herbs = await rep.ListAsyncByLetter(pageIndex, pageSize, _selectedLetter.ToString(), isAdmin);
+            pager = new HelperClasses.Pagination();
+
+            pager.CurrentPage = pageIndex;
+            pager.MaxSize = await rep.CountByLetter(_selectedLetter.ToString());
+            pager.PageSize = pageSize;
+            pager.NumberSeria = Constants.PAGER_NUMBER_OF_VISIBLE_LINKS;
+            pager.Url = Constants.URL_HERB;
+            pager.Query = "";
+            model.Pager = pager;
+        }
+        await SetMeta();
+        showLoader = false;
+    }
+
+    async Task UpdatePageData()
+    {
+        query = new Uri(NavigationManager.Uri).Query;
+        if (QueryHelpers.ParseQuery(query).TryGetValue("page", out var val))
+        {
+            pageIndex = int.Parse(val.ToString());
+        }
+        else
+        {
+            pageIndex = 1;
+        }
+
+        model.Crumb = new HelperClasses.Crumb();
+        pirep = new health.Models.Repository.PageInfoRepository(db, connection);
+        var pi = await pirep.FindAsync(_url);
+        if (pi == null)
+            pi = new PageInfo(_url);
+        model.Crumb.List.Add("", pi.Name);
+        rep = new Models.Repository.HerbRepository(db, connection);
+        herbs = await rep.ListAsync(pageIndex, pageSize, isAdmin);
+
+        _pageName = pi.Name;
+        _title = pi.Title ?? "";
+        _description = pi.Description ?? "";
+        _keywords = pi.Keywords ?? "";
+
+        await SetMeta();
+
+        pager = new HelperClasses.Pagination();
+
+        pager.CurrentPage = pageIndex;
+        pager.MaxSize = await rep.Count();
+        pager.PageSize = pageSize;
+        pager.NumberSeria = Constants.PAGER_NUMBER_OF_VISIBLE_LINKS;
+        pager.Url = Constants.URL_HERB;
+        pager.Query = "";
+
+        model.Pager = pager;
+    }
+
+    async Task SetMeta()
+    {
+        string curTitle = _title;
+        if (pageIndex > 1)
+            curTitle += $" | Страница {pageIndex}";
+        await HeadElementHelper.SetTitleAsync(curTitle);
+        await HeadElementHelper.SetMetaElementsAsync(
+          ByName("description", _description),
+          ByName("keywords", _keywords)
+        );
+    }
+
+    async Task HerbChangeListEvent()
+    {
+        await UpdateList();
+    }
+
+    async Task PageInfoChangeListEvent()
+    {
+        await SetMeta();
+    }
+}

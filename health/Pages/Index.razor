@@ -1,0 +1,145 @@
+﻿@page "/"
+
+@inject IHeadElementHelper HeadElementHelper
+@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+@using static Toolbelt.Blazor.HeadElement.MetaElement
+
+<AuthorizeView>
+    <Authorized>
+        <div class="admin-h1">
+            <health.Areas.Admin.Components.AdminZone.AdminIcons ItemId="0" IconSet="">
+                <li>
+                    <health.Areas.Admin.Components.AdminZone.AdminIcon ItemClick='(()=>_pageInfoAdminZone.EditClickEvent("default"))' ItemId="default">
+                        <i class="far fa-edit"></i> Редактировать
+                    </health.Areas.Admin.Components.AdminZone.AdminIcon>
+                </li>
+            </health.Areas.Admin.Components.AdminZone.AdminIcons>
+            <h1>@_pageName</h1>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <h1>@_pageName</h1>
+    </NotAuthorized>
+</AuthorizeView>
+
+<AuthorizeView>
+    <Authorized>
+        <health.Areas.Admin.Components.AdminZone.PageInfoAdminZone @ref="_pageInfoAdminZone"/>
+    </Authorized>
+</AuthorizeView>
+
+@if (model != null)
+{
+    @((MarkupString)model.PageInfo?.Content)
+<div class="row homesegments">
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="segment">
+            <h2>Последние статьи</h2>
+            <ul>
+                @if (model.LastArticles != null)
+                {
+                    foreach (var item in model.LastArticles)
+                    {
+                        <li>
+                            <div class="title">
+                                <a href="@(health.Util.Constants.URL_ARTICLE)/@item.IdName">@item.Name</a>
+                            </div>
+                            <div class="description">
+                                @item.Description
+                            </div>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="segment">
+            <h2>Последние рецепты</h2>
+            <ul>
+                @if (model.LastRecipes != null)
+                {
+                    foreach (var item in model.LastRecipes)
+                    {
+                        <li>
+                            <div class="title">
+                                <a href="@item.Url">@item.Name</a>
+                            </div>
+                            <div class="description">
+                                @((MarkupString)item.Description)
+                            </div>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+}
+
+@code {
+
+    HomeViewModel model = new HomeViewModel();
+    health.Models.Repository.PageInfoRepository pirep;
+
+    health.Models.Repository.ArticleRepository rep;
+    health.Models.Repository.RecipeRepository recrep;
+    string _pageName = string.Empty;
+
+    health.Areas.Admin.Components.AdminZone.PageInfoAdminZone _pageInfoAdminZone;
+
+
+    bool _firstRender = true;
+
+    string _title;
+    string _description;
+    string _keywords;
+
+    string query = string.Empty;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        _firstRender = firstRender;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _pageInfoAdminZone = new Areas.Admin.Components.AdminZone.PageInfoAdminZone();
+        await UpdatePageData();
+    }
+
+    async Task UpdatePageData()
+    {
+        model = new HomeViewModel();
+        pirep = new health.Models.Repository.PageInfoRepository(db, connection);
+        var pi = await pirep.FindAsync("default");
+        if (pi == null)
+            pi = new PageInfo("default");
+        rep = new Models.Repository.ArticleRepository(db, connection);
+        recrep = new Models.Repository.RecipeRepository(db, connection);
+
+        model.LastArticles = await rep.LastArticlesAsync(10);
+        model.LastRecipes = await recrep.LastRecipesAsync(10);
+        model.PageInfo = pi;
+
+        _pageName = pi.Name;
+        _title = pi.Title ?? "";
+        _description = pi.Description ?? "";
+        _keywords = pi.Keywords ?? "";
+
+        await SetMeta();
+
+    }
+
+    async Task SetMeta()
+    {
+        string curTitle = _title;
+        await HeadElementHelper.SetTitleAsync(curTitle);
+        await HeadElementHelper.SetMetaElementsAsync(
+          ByName("description", _description),
+          ByName("keywords", _keywords)
+        );
+    }
+
+}

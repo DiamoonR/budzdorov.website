@@ -1,0 +1,12 @@
+﻿.footer-nav {
+    a {
+        display: inline-block;
+        padding: 6px;
+        text-decoration: none;
+        transition: all ease .3s;
+
+        &:hover {
+            color: #414E09;
+        }
+    }
+}

@@ -1,0 +1,114 @@
+﻿@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+@using Sitko.Blazor.CKEditor.Bundle
+@if (isActive)
+{
+    <div class="modal-backdrop show"></div>
+
+    <div class="modal fade show" id="editMyPage" tabindex="-1" role="dialog" aria-labelledby="editMyPage" aria-hidden="true" style="display:block">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content" >
+                <EditForm Model="MyPage">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@title</h5>
+                        <button type="button" @onclick="Hide" class="btn-close" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" @bind-value="MyPage.MyPageId" />
+                        <div class="row">
+                            <div class="col-4">
+                                <label>Название</label>
+                                <input value="@MyPage.Name" @onchange="((e) =>Translit(e))" class="form-control" />
+                            </div>
+                            <div class="col-4">
+                                <label>Идентификатор</label>
+                                <div class="input-spinner-container">
+                                    <input @bind-value="MyPage.IdName" class="form-control" readonly="@idNameReadonly" />
+                                    @if (translitLoading)
+                                    {
+                                        <div class="spinner-border text-primary input-spinner" role="status"></div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label>Заголовок (Title)</label>
+                                <input @bind-value="@MyPage.Title" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <label>Краткое описание</label>
+                                <InputTextArea @bind-Value="MyPage.Description" class="form-control"  rows="4"/>
+                            </div>
+                            <div class="col-6">
+                                <label>Ключевые слова</label>
+                                <InputTextArea @bind-Value="MyPage.Keywords" class="form-control" rows="4" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label>Содержание</label>
+                                <CKEditor @bind-Value="@MyPage.Content" Config="_config"></CKEditor>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button @onclick="OnSave" type="button" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    bool isActive = false;
+    string title;
+    bool idNameReadonly = false;
+    bool translitLoading = false;
+    bool _isEdit = false;
+
+    [Parameter] public MyPage MyPage { get; set; }
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    public void Show() => isActive = true;
+    public void Hide() => isActive = false;
+
+    private CKEditorConfig _config;
+
+
+    protected override void OnParametersSet()
+    {
+        _config = CKEditorBundleOptions.DefaultConfig.WithHtmlEditing();
+        _config.Toolbar.Items.Add("blockQuote");
+        if (MyPage != null && MyPage.MyPageId == 0)
+        {
+            _isEdit = false;
+            title = "Добавить страницу";
+            idNameReadonly = false;
+        }
+        else
+        {
+            _isEdit = true;
+            title = "Редактировать страницу";
+            idNameReadonly = true;
+        }
+    }
+
+    async Task Translit(ChangeEventArgs e)
+    {
+        if (!_isEdit)
+        {
+            translitLoading = true;
+            StateHasChanged();
+            MyPage.Name = e.Value.ToString();
+            MyPage.IdName = await Admin.Util.AdminActions.TranslitAsync(MyPage.Name, "MyPage", db, connection);
+            translitLoading = false;
+        }
+        else
+        {
+            MyPage.Name = e.Value.ToString();
+        }
+    }
+}

@@ -1,0 +1,212 @@
+﻿body {
+    font-family: 'Blogger Sans';
+    color: #353535;
+    margin: 0;
+    padding: 0;
+    background-image: url(../design/bg.png) !important;
+    background-repeat: repeat-x;
+}
+
+p {
+    line-height: 1.3em;
+}
+
+.hidden.menu {
+    display: none;
+}
+
+.mobile-nav {
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+header {
+    box-shadow: 0 0 5px black;
+
+    .mobile-menu-icon {
+        display: none;
+    }
+
+    .inner-header {
+        position: relative;
+        background-image: url(../design/bgHeader1.png);
+        background-repeat: repeat-x;
+        height: 141px;
+
+        .logo {
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            width: 338px;
+            height: 60px;
+            background-image: url(../design/logo.png);
+            cursor: pointer;
+            z-index: 0;
+        }
+
+        &:after {
+            content: '';
+            position: absolute;
+            width: 310px;
+            height: 139px;
+            top: 0px;
+            right: 2px;
+            background-image: url(../design/rightTop.png);
+        }
+    }
+
+    .login {
+        position: absolute;
+        left: 20px;
+        top: 10px;
+        text-align: right;
+
+        a {
+            text-decoration: none;
+            color: $a-color;
+            transition: all 0.3s ease;
+
+            &:hover {
+                color: darken($a-color,20%);
+            }
+        }
+    }
+
+    .menu {
+        background-image: url(../design/bgTopMenu.png);
+        background-repeat: repeat-x;
+        height: 53px;
+        position: relative;
+        padding-left: 20px;
+
+        &:after {
+            content: '';
+            position: absolute;
+            background-image: url(../design/corMenuLeft.png);
+            width: 23px;
+            height: 76px;
+            top: -11px;
+            left: -23px;
+        }
+
+        &:before {
+            content: '';
+            position: absolute;
+            background-image: url(../design/corMenuRight.png);
+            width: 23px;
+            height: 76px;
+            top: -11px;
+            right: -23px;
+        }
+
+        ul {
+            text-align: left;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+
+            li {
+                display: inline-block;
+                line-height: 43px;
+                padding: 0;
+                margin: 0;
+                //margin-right: 4px;
+
+                a {
+                    color: white;
+                    text-decoration: none;
+                    display: inline-block;
+                    height: 53px;
+                    padding:0 8px;
+                    top: -25px;
+                    position: relative;
+
+                    &:hover, &:active {
+                        background-image: url(../design/bgTopMenuActive.png);
+                        background-repeat: repeat-x;
+                    }
+                }
+
+                ins {
+                    position: relative;
+                    display: inline-block;
+                    width: 1px;
+                    height: 53px;
+                    left: 0px;
+                    background-image: url(../design/topMenuIns.png);
+                }
+            }
+
+            &:after {
+                content: '';
+                position: relative;
+                display: inline-block;
+                width: 1px;
+                height: 53px;
+                left: 4px;
+                background-image: url(../design/topMenuIns.png);
+            }
+        }
+    }
+
+    .search {
+        background-color: #F1F2F1;
+        padding: 5px;
+
+        .form {
+            .input {
+                padding: 0 !important;
+            }
+
+            .olive {
+                background-color: #9AB51E;
+            }
+        }
+    }
+}
+
+.main {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 40px;
+    box-shadow: 0 0 5px black;
+    background-color: white;
+
+    .content {
+        min-height: 400px;
+        padding: 12px;
+    }
+
+    .bottom {
+        background-image: url(../design/bgBottom.png);
+        padding-top: 100px;
+        background-repeat: repeat-x;
+        min-height: 169px;
+        text-align: center;
+        color: #839634;
+        margin-left: -11px;
+        margin-right: -11px;
+        bottom: 0;
+
+        a {
+            color: $a-color;
+        }
+    }
+}
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.secondary.pointing.menu .toc.item {
+    display: none;
+}
+
+.counters {
+    text-align: right;
+}

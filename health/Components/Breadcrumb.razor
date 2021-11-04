@@ -1,0 +1,23 @@
+﻿@if (Data != null)
+{
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Главная</a></li>
+        @foreach (var item in Data.List)
+        {
+            if (item.Key.Length > 0)
+            {
+                <li class="breadcrumb-item"><NavLink href="@item.Key">@item.Value</NavLink></li>
+            }
+            else
+            {
+                <li class="breadcrumb-item active" aria-current="page">@item.Value</li>
+            }
+        }
+    </ol>
+</nav>
+}
+
+@code {
+    [Parameter] public health.HelperClasses.Crumb Data { get; set; }
+}

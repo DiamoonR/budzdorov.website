@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<MyConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <AdminEmail>admin2@hotglobus.ru</AdminEmail>
+  <SmtpServer>wpl27.hosting.reg.ru</SmtpServer>
+  <SmtpPort>587</SmtpPort>
+  <AdminEmailPassword>$meqeUr98r!</AdminEmailPassword>
+  <WorkEmail>rackitin@gmail.com</WorkEmail>
+  <FooterCode>&lt;!-- Yandex.Metrika counter --&gt;
+&lt;script type="text/javascript" &gt;
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(53663104, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+&lt;/script&gt;
+&lt;noscript&gt;&lt;div&gt;&lt;img src="https://mc.yandex.ru/watch/53663104" style="position:absolute; left:-9999px;" alt="" /&gt;&lt;/div&gt;&lt;/noscript&gt;
+&lt;!-- /Yandex.Metrika counter --&gt;</FooterCode>
+  <Address>Анапа</Address>
+  <Phone>+7 (499) 345-67-84</Phone>
+</MyConfig>

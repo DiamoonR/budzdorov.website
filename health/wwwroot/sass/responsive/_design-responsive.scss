@@ -1,0 +1,60 @@
+﻿@media only screen and (max-width: $screen-small - 1) {
+    .menu{
+        display:none;
+    }
+    .mobile-menu-icon {
+        display: block!important;
+        position:absolute;
+        top:26px;
+        left:30px;
+        font-size:180%;
+    }
+    header {
+        .inner-header {
+            height:90px;
+            background-position:center;
+            &:after {
+                background: none;
+            }
+
+            .logo {
+                position: absolute;
+                top: 20px;
+                left: 60px;
+                width: 240px;
+                height: 45px;
+                background-image: url(../design/logo.png);
+                background-size:contain;
+                background-repeat:no-repeat;
+            }
+        }
+    }
+    .publications {
+        padding:0;
+    }
+    .recipes {
+        padding:0;
+        list-style:none;
+        li {
+            position: relative;
+            margin-bottom: 10px;
+
+            .admin-action {
+                position: absolute;
+                left: -40px;
+                top: 5px;
+
+                &.icon {
+                    color: red;
+                }
+            }
+
+            b, strong {
+                color: #004A00;
+                font-size: 120%;
+            }
+        }
+    }
+}
+@media only screen and (max-width: $screen-tiny - 1) {
+}

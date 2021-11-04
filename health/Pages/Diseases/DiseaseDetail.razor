@@ -1,0 +1,144 @@
+﻿@page "/diseases/{IdName}"
+@inject IHeadElementHelper HeadElementHelper
+@using static Toolbelt.Blazor.HeadElement.MetaElement
+
+@inject NavigationManager NavigationManager
+
+@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+@using health.Areas.Admin.Components.AdminZone
+@using health.Components.Tabs
+@using health.Models.Repository
+
+@if (model == null)
+{
+    <PageLoader />
+}
+else
+{
+    <Breadcrumb Data="_crumb"></Breadcrumb>
+
+    <AuthorizeView>
+        <Authorized>
+            <DiseaseAdminZone @ref="_adminZone" OnChange="()=>DiseaseChangeListEvent()" />
+            <SymptomAdminZone @ref="_symptomAdminZone" />
+            <RecipeAdminZone @ref="_recipeAdminZone" OnChange="UpdateRecipes"/>
+            <div class="admin-h1">
+                <AdminIcons ItemId="@model.DiseaseId" IconSet="edit,remove" OnDelete="(()=>_adminZone.DeleteClickEvent(model.DiseaseId))" OnEdit="(()=>_adminZone.EditClickEvent(model.DiseaseId))">
+                    <li>
+                        <AdminIcon ItemClick="(()=>_symptomAdminZone.Show(model.DiseaseId))">
+                            <i class="far fa-edit"></i> Симптомы
+                        </AdminIcon>
+                    </li>
+                    <li>
+                        <AdminIcon ItemClick="(()=>_recipeAdminZone.AddClickEvent(model.DiseaseId))">
+                            <i class="fas fa-plus"></i> Добавить рецепт
+                        </AdminIcon>
+                    </li>
+                </AdminIcons>
+                <h1>@model.Name</h1>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <h1>@model.Name</h1>
+        </NotAuthorized>
+    </AuthorizeView>
+    <TabControl>
+        <TabPage Text="Описание">
+            @((MarkupString)model.Content)
+        </TabPage>
+        @if (symptom != null && symptom.Content?.Length > 0)
+        {
+            <TabPage Text="Симптомы">
+                @((MarkupString)symptom.Content)
+            </TabPage>
+        }
+        @if (recipes.Count>0)
+        {
+            string resipeTitle = $"Рецепты [{recipes.Count}]";
+            <TabPage Text="@resipeTitle">
+                <RecipeList Recipes="recipes" RecipeAdminZone="_recipeAdminZone"/>
+            </TabPage>
+        }
+    </TabControl>
+}
+
+@code {
+    [Parameter] public string IdName { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    bool isAdmin = false;
+    Disease model;
+    Symptom symptom;
+    List<Recipe> recipes;
+
+    DiseaseRepository rep;
+    RecipeRepository resrep;
+    SymptomRepository symrep;
+    PageInfoRepository pirep;
+
+    health.HelperClasses.Crumb _crumb;
+    string _url = Constants.URL_DISEASE;
+
+    health.Areas.Admin.Components.AdminZone.DiseaseAdminZone _adminZone;
+    health.Areas.Admin.Components.AdminZone.SymptomAdminZone _symptomAdminZone;
+    health.Areas.Admin.Components.AdminZone.RecipeAdminZone _recipeAdminZone;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            isAdmin = true;
+            _adminZone = new Areas.Admin.Components.AdminZone.DiseaseAdminZone();
+            _symptomAdminZone = new Areas.Admin.Components.AdminZone.SymptomAdminZone();
+            _recipeAdminZone = new Areas.Admin.Components.AdminZone.RecipeAdminZone();
+        }
+        rep = new Models.Repository.DiseaseRepository(db, connection);
+        symrep = new Models.Repository.SymptomRepository(db, connection);
+        pirep = new health.Models.Repository.PageInfoRepository(db, connection);
+        resrep = new Models.Repository.RecipeRepository(db,connection);
+
+        recipes = new List<Recipe>();
+
+        await UpdateModel();
+    }
+
+    async Task UpdateModel()
+    {
+        model = await rep.FindAsync(IdName);
+        if (model == null)
+            NavigationManager.NavigateTo("/404");
+
+        symptom = await symrep.FindByDiseaseAsync(model.DiseaseId);
+        recipes = await resrep.ListAsync(model.DiseaseId);
+
+        var pi = await pirep.FindAsync(_url);
+
+        if (pi == null)
+            pi = new PageInfo(_url);
+
+        _crumb = new HelperClasses.Crumb();
+        _crumb.List.Add(_url, pi.Name);
+        _crumb.List.Add("", model.Name);
+
+        await HeadElementHelper.SetTitleAsync("Заболевания: " + model.Name);
+        await HeadElementHelper.SetMetaElementsAsync(
+          ByName("description", model.Description ?? "")
+        );
+    }
+
+    async Task UpdateRecipes()
+    {
+        recipes = await resrep.ListAsync(model.DiseaseId);
+    }
+
+    async Task DiseaseChangeListEvent()
+    {
+        await UpdateModel();
+    }
+}

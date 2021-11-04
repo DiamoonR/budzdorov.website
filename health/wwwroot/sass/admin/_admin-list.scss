@@ -1,0 +1,85 @@
+﻿@import "../settings";
+.admin {
+    &-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        margin-top: 0px;
+        border: 1px solid #D6DBE9;
+        border-radius: 4px;
+        padding: 40px;
+        margin-bottom: 40px;
+        width: 100%;
+
+        li {
+        }
+    }
+
+    &-item {
+        &-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            margin-bottom: 50px;
+
+            li {
+                position: relative;
+                padding-bottom: 3px;
+                padding-top: 3px;
+                border-bottom: 1px dotted gray;
+
+                &:hover {
+                    background-color: antiquewhite;
+                }
+            }
+
+            .level-0 {
+                text-transform: uppercase;
+                font-size: 120%;
+            }
+
+            .level-1 {
+                font-size: 100%;
+                padding-left: 20px;
+
+                &:before {
+                    content: '-';
+                }
+            }
+
+            .child {
+                font-size: 90%;
+                padding-left: 30px;
+            }
+
+            .level-2 {
+                padding-left: 40px;
+                font-size: 80%;
+
+                &:before {
+                    content: '--';
+                }
+            }
+
+            .level-3 {
+                padding-left: 80px;
+                font-size: 90%;
+
+                &:before {
+                    content: '--';
+                }
+            }
+        }
+    }
+
+    &-icon {
+        color: red !important;
+        font-size: 0.9em !important;
+        opacity: 0.5;
+        transition:all ease .3s;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}

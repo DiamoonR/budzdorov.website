@@ -1,0 +1,15 @@
+﻿$bg-gray: #D6D6D6;
+$green: #039847;
+$a-color: #74852E;
+
+@font-face {
+    font-family: Blogger Sans; /* имя шрифта для CSS правил */
+    src: local("Blogger Sans"), /* проверяем наличие шрифта в ОС пользователя */
+    url('../fonts/bloggersans/Blogger Sans-Light.otf'); /* если шрифт не установлен, тогда загружаем его по указанному пути */
+}
+
+$screen-medium: 790px;
+$screen-small: 640px;
+$screen-tiny: 600px;
+$screen-mini: 412px;
+$screen-large: 1200px;

@@ -1,0 +1,73 @@
+﻿@page "/admin/config"
+@inject IHeadElementHelper HeadElementHelper
+@inject IMyConfig _conf
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env
+
+@attribute [Authorize]
+
+<Title>Администрирование: настройки</Title>
+
+<NavAdmin></NavAdmin>
+
+<h1>Настройки</h1>
+
+<form @onsubmit:preventDefault @onsubmit="SaveConfig">
+    <div class="row">
+        <div class="col-6">
+            <label class="form-label" for="adminEmail">Административный email</label>
+            <input type="text" class="form-control" id="adminEmail" @bind-value="conf.AdminEmail"/>
+        </div>
+        <div class="col-6">
+            <label class="form-label" for="workEmail">
+                Рабочий email
+            </label>
+            <input type="text" @bind-value="conf.WorkEmail" class="form-control" id="workEmail" />
+        </div>
+    </div>
+    <div class="row my-4">
+        <div class="col-4">
+            <label class="form-label" for="smtpServer">SmtpServer</label>
+            <input type="text" @bind-value="conf.SmtpServer" class="form-control" id="smtpServer" />
+        </div>
+        <div class="col-4">
+            <label class="form-label" for="smtpPort">
+                SmtpPort
+            </label>
+            <input type="text" @bind-value="conf.SmtpPort" class="form-control" id="smtpPort" />
+        </div>
+        <div class="col-4">
+            <label class="form-label" for="adminEmailPass">Пароль к админ. email</label>
+            <input type="text" @bind-value="conf.AdminEmailPassword" class="form-control" id="adminEmailPass" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label class="form-label">
+                Код счетчиков
+            </label>
+            <textarea class="form-control" rows="4">@conf.FooterCode</textarea>
+        </div>
+    </div>
+    <p class="mt-4">
+        <button class="btn btn-primary">Сохранить</button>
+    </p>
+</form>
+
+@code {
+    MyConfig conf;
+    MyConfigRepository rep;
+    protected override void OnInitialized()
+    {
+        rep = new MyConfigRepository(_env);
+        conf = rep.GetMyConfig();
+        if (conf == null)
+        {
+            conf = new MyConfig();
+        }
+    }
+
+    void SaveConfig()
+    {
+        rep.Save(conf);
+    }
+}

@@ -1,0 +1,37 @@
+﻿@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+
+    <nav role="navigation">
+        <div id="menuToggle">
+            <input type="checkbox" @bind="ch"/>
+            <span></span>
+            <span></span>
+            <span></span>
+            <ul id="menu">
+                @foreach (var item in menu)
+                {
+                    <li>
+                        <NavLink href="@item.Url" Match="NavLinkMatch.All" @onclick="ClearChecked">
+                            @item.Name
+                        </NavLink>
+                    </li>
+                }
+            </ul>
+        </div>
+    </nav>
+
+    @code {
+        string chk = "";
+        bool ch = false;
+        List<Models.Menu> menu;
+        protected override void OnInitialized()
+        {
+            Models.Repository.MenuRepository rep = new Models.Repository.MenuRepository(db, connection);
+            menu = rep.List();
+        }
+
+        void ClearChecked()
+        {
+            ch = false;
+        }
+    }

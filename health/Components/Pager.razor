@@ -1,0 +1,207 @@
+﻿@if (count > 1)
+{
+    <nav class="scroller">        
+        <ul>
+            @if (currentPage > 1)
+            {
+                prevPage = currentPage - 1;
+                if (prevPage != 1)
+                {
+                    if (prevPage == 0)
+                    {
+                        if (query.Length == 0)
+                        {
+                            <li class="-prev"><a href="@url" @onclick="()=>ChangePage(1)">← Предыдущая</a></li>
+                            <li class="-linebreak"></li>
+                        }
+                        else
+                        {
+                            <li class="-prev"><a href="@url?@query" @onclick="()=>ChangePage(1)">← Предыдущая</a></li>
+                            <li class="-linebreak"></li>
+                        }
+                    }
+                    else
+                    {
+                        if (query.Length == 0)
+                        {
+                            <li class="-prev"><a href="@url?page=@prevPage" @onclick="()=>ChangePage(prevPage)">← Предыдущая</a></li>
+                            <li class="-linebreak"></li>
+                        }
+                        else
+                        {
+                            <li class="-prev"><a href="@url?page=@(prevPage)&@query" @onclick="()=>ChangePage(prevPage)">← Предыдущая</a></li>
+                            <li class="-linebreak"></li>
+                        }
+                    }
+                }
+                else
+                {
+                    if (query.Length == 0)
+                    {
+                        <li class="-prev"><a href="@url" @onclick="()=>ChangePage(1)">← Предыдущая</a></li>
+                        <li class="-linebreak"></li>
+                    }
+                    else
+                    {
+                        <li class="-prev">
+                            <a href="@url?@query" @onclick="()=>ChangePage(1)">← Предыдущая</a>
+                        </li>
+                        <li class="-linebreak"></li>
+                    }
+                }
+            }
+            @for (int i = 1; i <= count; i++)
+            {
+                int step = (int)Math.Ceiling((double)i / (double)Model.NumberSeria);
+                if (i == currentPage)
+                {
+                    <li class="active"><span>@i</span></li>
+                }
+                else
+                {
+                    if (i == 1)
+                    {
+                        if (query.Length == 0)
+                        {
+                            <li><a href="@url" @onclick="()=>ChangePage(1)">1</a></li>
+                        }
+                        else
+                        {
+                            <li><a href="@url?@query" @onclick="()=>ChangePage(1)">1</a></li>
+                        }
+                    }
+                    else if (i == count)
+                    {
+                        int j = i;
+                        if (query.Length == 0)
+                        {
+                            <li><a href="@url?page=@i" @onclick="()=>ChangePage(j)">@i</a></li>
+                        }
+                        else
+                        {
+                            <li><a href="@url?page=@i&@query" @onclick="()=>ChangePage(j)">@i</a></li>
+                        }
+                    }
+                    else
+                    {
+                        if (i < currentPage - middleSeria)
+                        {
+                            bool _curStepFlag = stepFlag;
+                        if (_curStepFlag)
+                        {
+                            <li class="-dots"><span>...</span></li>
+                            stepFlag = false;
+                        }
+
+                            @*if (stepFlag)
+                            {
+                                <li class="-dots"><span>...</span></li>
+                                stepFlag = false;
+                            }*@
+                        }
+                        else if (i > currentPage + middleSeria)
+                        {
+                            bool _curStepFlag2 = stepFlag2;
+                        if (_curStepFlag2)
+                        {
+                            <li class="-dots"><span>...</span></li>
+                            stepFlag2 = false;
+                        }
+                            @*if (stepFlag2)
+                            {
+                                <li class="-dots"><span>...</span></li>
+                                stepFlag2 = false;
+                            }*@
+                        }
+                        else
+                        {
+                            int j = i;
+                            if (query.Length == 0)
+                            {
+                                <li><a href="@url?page=@i" @onclick="()=>ChangePage(j)">@i</a></li>
+                            }
+                            else
+                            {
+                                <li><a href="@url?page=@i&@query" @onclick="()=>ChangePage(j)">@i</a></li>
+                            }
+                        }
+                    }
+                }
+            }
+
+            @if (currentPage < count)
+            {
+                nextPage = currentPage + 1;
+                if (query.Length == 0)
+                {
+                    <li class="-next">
+                        <a href="@url?page=@nextPage" @onclick="()=>ChangePage(nextPage)">Следующая →</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="-next">
+                        <a href="@url?page=@nextPage&@query" @onclick="()=>ChangePage(nextPage)">Следующая →</a>
+                    </li>
+                }
+            }
+            @((MarkupString)Model.AdditionalString)
+        </ul>
+    </nav>
+}
+
+@code {
+    [Parameter] public health.HelperClasses.Pagination Model { get; set; }
+    [Parameter] public EventCallback<int> SelectPage { get; set; }
+
+    int prevPage = 1;
+    int nextPage = 1;
+    int currentStep;
+    int middleSeria;
+    bool stepFlag = true;
+    bool stepFlag2 = true;
+    string url = string.Empty;
+    string query = string.Empty;
+    int currentPage;
+    int count;
+
+    protected override void OnInitialized()
+    {
+        SetData();
+    }
+    void SetData()
+    {
+        count = (int)Math.Ceiling((double)Model.MaxSize / (double)Model.PageSize);
+        currentStep = (int)Math.Ceiling((double)Model.CurrentPage / (double)Model.NumberSeria);
+        middleSeria = (int)Math.Ceiling((double)Model.NumberSeria / 2.0);
+
+        url = Model.Url;
+        query = Model.Query;
+        currentPage = Model.CurrentPage;
+        if (url.Substring(0, 1) != "/")
+        {
+            url = "/" + url;
+        }
+
+    }
+
+    protected override void OnParametersSet()
+    {
+        SetData();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        stepFlag = true;
+        stepFlag2 = true;
+
+    }
+
+    void ChangePage(int item)
+    {
+        stepFlag = true;
+        stepFlag2 = true;
+        currentPage = item;
+        SelectPage.InvokeAsync(item);
+    }
+}

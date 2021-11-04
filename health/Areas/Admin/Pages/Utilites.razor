@@ -1,0 +1,38 @@
+﻿@page "/admin/utils"
+@inject IHeadElementHelper HeadElementHelper
+@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+
+@attribute [Authorize]
+
+<Title>Администрирование: утилиты</Title>
+
+<NavAdmin></NavAdmin>
+
+<h1>Утилиты</h1>
+
+<ul>
+    @*<li><a class="cursor-pointer" @onclick="UpdateDiseaseIdentity">Преобразовать идентификаторы заболеваний</a></li>
+    <li><a class="cursor-pointer" @onclick="UpdateHerbIdentity">Преобразовать идентификаторы растений</a></li>
+    <li><a class="cursor-pointer" @onclick="UpdateArticleIdentity">Преобразовать идентификаторы статей</a></li>*@
+</ul>
+
+@code {
+    protected override void OnInitialized()
+    {
+
+    }
+
+    async Task UpdateDiseaseIdentity()
+    {
+        await Admin.Util.AdminActions.UpdateDiseaseIdentity(db, connection);
+    }
+    async Task UpdateHerbIdentity()
+    {
+        await Admin.Util.AdminActions.UpdateHerbIdentity(db, connection);
+    }
+    async Task UpdateArticleIdentity()
+    {
+        await Admin.Util.AdminActions.UpdateArticleIdentity(db, connection);
+    }
+}

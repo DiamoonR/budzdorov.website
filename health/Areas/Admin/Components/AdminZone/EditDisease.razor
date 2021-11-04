@@ -1,0 +1,140 @@
+﻿@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+@using Sitko.Blazor.CKEditor.Bundle
+@if (isActive)
+{
+    <div class="modal-backdrop show"></div><div class="modal fade show" id="editDisease" tabindex="-1" role="dialog" aria-labelledby="editDisease" aria-hidden="true" style="display:block">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                @if (_model == null || _loading)
+                {
+                    <PageLoader />
+                }
+                else
+                {
+                    <EditForm Model="@_model">
+                        <div class="modal-header">
+                            <h5 class="modal-title">@title</h5>
+                            <button type="button" @onclick="Hide" class="btn-close" aria-label="Close">
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" @bind-value="_model.DiseaseId" />
+                            <div class="row">
+                                <div class="col-6">
+                                    <label>Название</label>
+                                    <input value="@_model.Name" @onchange="((e) => Translit(e))" class="form-control" />
+                                </div>
+                                <div class="col-6">
+                                    <label>Идентификатор</label>
+                                    <div class="input-spinner-container">
+                                        <input @bind-value="_model.IdName" class="form-control" readonly="@idNameReadonly" />
+                                        @if (translitLoading)
+                                        {
+                                            <div class="spinner-border text-primary input-spinner" role="status"></div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>Краткое описание</label>
+                                    <InputTextArea @bind-Value="_model.Description" class="form-control" rows="4" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <label>Содержание</label>
+                                    <CKEditor @bind-Value="@_model.Content" Config="_config"></CKEditor>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button @onclick="Save" type="button" class="btn btn-primary">Сохранить</button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    bool isActive = false;
+    string title;
+    bool idNameReadonly = false;
+    bool translitLoading = false;
+    bool _isEdit = false;
+    bool _loading = false;
+
+    Models.Repository.DiseaseRepository rep;
+
+
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    Disease _model;
+
+    public void Hide() => isActive = false;
+
+    public void Show()
+    {
+        isActive = true;
+        _config = CKEditorBundleOptions.DefaultConfig.WithHtmlEditing();
+        _isEdit = false;
+        title = "Добавить статью";
+        idNameReadonly = false;
+        _model = new Disease();
+    }
+
+    public async Task Show(int id)
+    {
+        isActive = true;
+        _config = CKEditorBundleOptions.DefaultConfig.WithHtmlEditing();
+        _isEdit = true;
+        title = "Редактировать статью";
+        idNameReadonly = true;
+        using (rep = new Models.Repository.DiseaseRepository(db, connection))
+        {
+            _loading = true;
+            _model = await rep.FindAsync(id);
+            _loading = false;
+        }
+    }
+
+    async Task Save()
+    {
+        using (rep = new Models.Repository.DiseaseRepository(db, connection))
+        {
+            if (_model.DiseaseId > 0)
+            {
+                rep.Update(_model);
+            }
+            else
+            {
+                rep.Add(_model);
+            }
+            rep.Save();
+        }
+        Hide();
+        await OnSave.InvokeAsync();
+    }
+
+    private CKEditorConfig _config;
+
+
+    async Task Translit(ChangeEventArgs e)
+    {
+        if (!_isEdit)
+        {
+            translitLoading = true;
+            StateHasChanged();
+            _model.Name = e.Value.ToString();
+            _model.IdName = await Admin.Util.AdminActions.TranslitAsync(_model.Name, "Disease", db, connection);
+            translitLoading = false;
+        }
+        else
+        {
+            _model.Name = e.Value.ToString();
+        }
+    }
+}

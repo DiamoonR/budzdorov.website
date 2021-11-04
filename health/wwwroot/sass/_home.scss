@@ -1,0 +1,51 @@
+﻿.homesegments {
+    .segment {
+        height: 100%;
+        border-top: 2px solid #21ba45 !important;
+        background: #fff;
+        box-shadow: 0 1px 2px 0 rgba(34,36,38,.15);
+        margin: 1rem 0;
+        padding: 1em 1em;
+        border-radius: .3rem;
+        border: 1px solid rgba(34,36,38,.15);
+
+        @include screen-medium {
+            margin-bottom: 16px!important;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+
+            li {
+                margin-bottom: 20px;
+
+                .title {
+                    margin-bottom: 4px;
+
+                    a {
+                        font-size: 16px;
+                        color: #45530D;
+                        text-decoration: none;
+                        transition: all ease .3s;
+                        font-size: 120%;
+
+                        &:hover {
+                            border-bottom: 1px dotted $a-color;
+                            color: darken($a-color,20%) !important;
+                        }
+                    }
+                }
+
+                .readmore-js-toggle, .readmore-js {
+                    color: $a-color;
+                    opacity: 0.7;
+                }
+
+                .description {
+                }
+            }
+        }
+    }
+}

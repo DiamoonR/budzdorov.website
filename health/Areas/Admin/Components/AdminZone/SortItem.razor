@@ -1,0 +1,95 @@
+﻿@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+
+@if (isActive)
+{
+    <div class="modal-backdrop show"></div><div class="modal fade show" id="editRecipe" tabindex="-1" role="dialog" aria-labelledby="editRecipe" aria-hidden="true" style="display:block">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <EditForm Model="@_model">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Сортировать</h5>
+                        <button type="button" @onclick="Hide" class="btn-close" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" @bind-value="_model.ItemId" />
+                        <input type="hidden" @bind-value="_model.ModelName" />
+                        <div class="row">
+                            <div class="col">
+                                <label>На сколько позиций изменить:</label>
+                                <input type="number" @bind-value="_model.Step" />
+                            </div>
+                            <div class="col">
+                                <label>Направление:</label>
+                                <div>
+                                    <label>Вверх</label>
+                                    <input type="radio" name="Direction" value="up" checked @onchange="OnChangeDirection" />
+                                    <label>Вниз</label>
+                                    <input type="radio" name="Direction" value="down" @onchange="OnChangeDirection" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button @onclick="Save" type="button" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+    bool isActive = false;
+    string directionValueUp = "up";
+    string directionValueDown = "down";
+
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    class Sort
+    {
+        public int ItemId { get; set; }
+        public int Step { get; set; } = 1;
+        public string ModelName { get; set; }
+        public string Direction { get; set; } = "up";
+    }
+
+    Sort _model = new Sort();
+
+    private void OnChangeDirection(ChangeEventArgs args)
+    {
+        _model.Direction = args.Value.ToString();
+    }
+
+    public void Hide() => isActive = false;
+
+    public void Show(int id, string modelName)
+    {
+        isActive = true;
+        _model.ItemId = id;
+        _model.ModelName = modelName;
+        StateHasChanged();
+    }
+
+    async Task Save()
+    {
+        switch (_model.ModelName)
+        {
+            case "Recipe":
+                Models.Repository.RecipeRepository rep;
+                using (rep = new Models.Repository.RecipeRepository(db, connection))
+                {
+                    for (int i = 0; i < _model.Step; i++)
+                    {
+                        rep.Move(_model.ItemId, _model.Direction);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        Hide();
+        await OnSave.InvokeAsync();
+    }
+}

@@ -1,0 +1,113 @@
+﻿@page "/medicinal-herbs/{IdName}"
+@inject IHeadElementHelper HeadElementHelper
+@using static Toolbelt.Blazor.HeadElement.MetaElement
+
+@inject NavigationManager NavigationManager
+
+@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+
+@if (model == null)
+{
+    <PageLoader />
+}
+else
+{
+    <Breadcrumb Data="_crumb"></Breadcrumb>
+
+    <AuthorizeView>
+        <Authorized>
+            <health.Areas.Admin.Components.AdminZone.HerbAdminZone @ref="_adminZone" OnChange="()=>HerbChangeListEvent()" />
+            <health.Areas.Admin.Components.AdminZone.ContrainAdminZone @ref="_contrainZone" />
+            <div class="admin-h1">
+                <health.Areas.Admin.Components.AdminZone.AdminIcons ItemId="@model.HerbId" IconSet="edit,remove" OnDelete="(()=>_adminZone.DeleteClickEvent(model.HerbId))" OnEdit="(()=>_adminZone.EditClickEvent(model.HerbId))">
+                    <li>
+                        <health.Areas.Admin.Components.AdminZone.AdminIcon ItemClick="(()=>_contrainZone.Show(model.HerbId))">
+                            <i class="far fa-edit"></i> Противопоказания
+                        </health.Areas.Admin.Components.AdminZone.AdminIcon>
+                    </li>
+                </health.Areas.Admin.Components.AdminZone.AdminIcons>
+                <h1>@model.Name</h1>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <h1>@model.Name</h1>
+        </NotAuthorized>
+    </AuthorizeView>
+    @if (contraindication != null)
+    {
+        <div class="contr">
+            <div class="heading">Противопоказания</div>
+            <div class="body">
+                @((MarkupString)contraindication.Content)
+            </div>
+        </div>
+    }
+    @((MarkupString)model.Content)
+}
+
+@code {
+    [Parameter] public string IdName { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    bool isAdmin = false;
+    Herb model;
+    Contraindication contraindication;
+    health.Models.Repository.HerbRepository rep;
+    health.Models.Repository.ContraindicationRepository crep;
+    health.Models.Repository.PageInfoRepository pirep;
+    health.HelperClasses.Crumb _crumb;
+    string _url = Constants.URL_HERB;
+
+    health.Areas.Admin.Components.AdminZone.HerbAdminZone _adminZone;
+    health.Areas.Admin.Components.AdminZone.ContrainAdminZone _contrainZone;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        _adminZone = new Areas.Admin.Components.AdminZone.HerbAdminZone();
+        _contrainZone = new Areas.Admin.Components.AdminZone.ContrainAdminZone();
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            isAdmin = true;
+        }
+        rep = new Models.Repository.HerbRepository(db, connection);
+        pirep = new health.Models.Repository.PageInfoRepository(db, connection);
+        crep = new Models.Repository.ContraindicationRepository(db, connection);
+        await UpdateModel();
+        await UpdateContrain();
+    }
+
+    async Task UpdateModel()
+    {
+        model = await rep.FindAsync(IdName);
+        if (model == null)
+            NavigationManager.NavigateTo("/404");
+
+        var pi = await pirep.FindAsync(_url);
+
+        if (pi == null)
+            pi = new PageInfo(_url);
+
+        _crumb = new HelperClasses.Crumb();
+        _crumb.List.Add(_url, pi.Name);
+        _crumb.List.Add("", model.Name);
+
+        await HeadElementHelper.SetTitleAsync("Лекарственные травы: " + model.Name);
+        await HeadElementHelper.SetMetaElementsAsync(
+          ByName("description", model.Description ?? "")
+        );
+    }
+    async Task UpdateContrain()
+    {
+        contraindication = await crep.FindByHerbAsync(model.HerbId);
+    }
+    async Task HerbChangeListEvent()
+    {
+        await UpdateModel();
+    }
+}

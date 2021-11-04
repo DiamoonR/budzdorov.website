@@ -1,0 +1,108 @@
+﻿@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+@using Sitko.Blazor.CKEditor.Bundle
+@if (isActive)
+{
+    <div class="modal-backdrop show"></div><div class="modal fade show" id="editArticle" tabindex="-1" role="dialog" aria-labelledby="editArticle" aria-hidden="true" style="display:block">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                @if (_model == null || _loading)
+                {
+                    <PageLoader />
+                }
+                else
+                {
+                    <EditForm Model="@_model">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Редактировать</h5>
+                            <button type="button" @onclick="Hide" class="btn-close" aria-label="Close">
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" @bind-value="_model.Url" />
+                            <div class="row">
+                                <div class="col-6">
+                                    <label>Название</label>
+                                    <input @bind-value="@_model.Name" class="form-control" />
+                                </div>
+                                <div class="col-6">
+                                    <label>Заголовок (Title)</label>
+                                    <input @bind-value="@_model.Title" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>Краткое описание</label>
+                                    <InputTextArea @bind-Value="_model.Description" class="form-control" rows="4" />
+                                </div>
+                                <div class="col-12">
+                                    <label>Ключевые слова</label>
+                                    <InputTextArea @bind-Value="_model.Keywords" class="form-control" rows="4" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <label>Содержание</label>
+                                    <CKEditor @bind-Value="@_model.Content" Config="_config"></CKEditor>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button @onclick="Save" type="button" class="btn btn-primary">Сохранить</button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    bool isActive = false;
+    bool _isEdit = true;
+    bool _loading = false;
+
+    Models.Repository.PageInfoRepository rep;
+
+
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    PageInfo _model;
+
+    public void Hide() => isActive = false;
+
+    public async Task Show(string url)
+    {
+        isActive = true;
+        _config = CKEditorBundleOptions.DefaultConfig.WithHtmlEditing();
+
+        using (rep = new Models.Repository.PageInfoRepository(db, connection))
+        {
+            _loading = true;
+            _model = await rep.FindAsync(url);
+            if (_model == null)
+            {
+                _isEdit = false;
+                _model = new PageInfo();
+            }
+            _loading = false;
+        }
+    }
+
+    async Task Save()
+    {
+        if (_isEdit)
+        {
+            rep.Update(_model);
+        }
+        else
+        {
+            rep.Add(_model);
+        }
+        rep.Save();
+        Hide();
+        await OnSave.InvokeAsync();
+    }
+
+    private CKEditorConfig _config;
+}

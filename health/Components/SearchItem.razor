@@ -1,0 +1,88 @@
+﻿@inject IHttpClientFactory ClientFactory
+@inject NavigationManager Navigator
+
+<div class="dropdown-search" @onfocusout="Hide">
+    <input class="form-control input-spinner-container spinner-left"
+           type="text"
+           placeholder="Поиск по названию"
+           value="@_inputValue" @oninput="OnChangeValue" @onclick="ShowList" />
+    @if (_loading)
+    {
+        <div class="spinner-border text-primary input-spinner left-align" role="status"></div>
+    }
+    <div class="dropdown-search-list @(_showSearchList?"active":"")">
+        @if (_items != null)
+        {
+            foreach (var item in _items)
+            {
+                <div class="dropdown-search-item">
+                    <a href="@item.Url">@item.Name</a>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+
+    [Parameter] public string ModelName { get; set; }
+
+    bool _loading = false;
+    string _inputValue = string.Empty;
+
+    IEnumerable<health.ViewModels.SearchItem> _items;
+    bool _showSearchList = false;
+
+    protected override void OnInitialized()
+    {
+    }
+
+    void Hide()
+    {
+        _showSearchList = false;
+    }
+
+    void ShowList()
+    {
+        if (_items?.Count() > 0)
+        {
+            _showSearchList = true;
+        }
+    }
+
+    async Task OnChangeValue(ChangeEventArgs args)
+    {
+        _inputValue = args.Value.ToString();
+        if (_inputValue.Length > 2)
+        {
+            _showSearchList = true;
+            _loading = true;
+            string _requestUrl = "";
+            if (ModelName == "Disease")
+            {
+                _requestUrl =   $"{Navigator.BaseUri}api/dataapi/getdiseaselist?name={_inputValue}";
+            }
+            if (ModelName == "Herb")
+            {
+                _requestUrl = $"{Navigator.BaseUri}api/dataapi/getherbslist?name={_inputValue}";
+            }
+            var request = new HttpRequestMessage(HttpMethod.Get, _requestUrl);
+
+            var client = ClientFactory.CreateClient();
+
+            var response = await client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                using var responseStream = await response.Content.ReadAsStreamAsync();
+                _items = await System.Text.Json.JsonSerializer.DeserializeAsync
+                    <IEnumerable<health.ViewModels.SearchItem>>(responseStream);
+            }
+            _loading = false;
+        }
+        else
+        {
+            _showSearchList = false;
+        }
+    }
+}

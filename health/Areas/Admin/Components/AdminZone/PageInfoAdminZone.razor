@@ -1,0 +1,25 @@
+﻿<EditPageInfo @ref="_editComponent" OnSave="Save"></EditPageInfo>
+
+@code {
+    [Parameter] public string Url { get; set; }
+    [Parameter] public EventCallback OnChange { get; set; }
+
+    EditPageInfo _editComponent;
+
+
+    protected override void OnInitialized()
+    {
+        _editComponent = new EditPageInfo();
+    }
+
+    void Save()
+    {
+        OnChange.InvokeAsync();
+    }
+
+    public async Task EditClickEvent(string url)
+    {
+        await _editComponent.Show(url);
+        StateHasChanged();
+    }
+}

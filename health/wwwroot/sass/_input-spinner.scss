@@ -1,0 +1,17 @@
+﻿.input-spinner{
+    position:absolute;
+    top:9px;
+    right:10px;
+    height:20px;
+    width:20px;
+    border-width:2px;
+    &.left-align{
+        left:10px;
+    }
+}
+.input-spinner-container{
+    position:relative;
+    &.spinner-left{
+        padding-left:36px;
+    }
+}

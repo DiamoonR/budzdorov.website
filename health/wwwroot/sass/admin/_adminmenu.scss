@@ -1,0 +1,29 @@
+﻿.adminmenu {
+    margin:24px 0;
+    padding: 5px;
+    background-color: #FAFBF4;
+    border: 1px solid #E4E6D3;
+    border-radius: 4px;
+    text-align: center;
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+
+        li {
+            margin: 6px;
+
+            a {
+                color: #006262;
+                text-decoration: none;
+                transition: all ease .3s;
+
+                &:hover {
+                    color: #004242;
+                }
+            }
+        }
+    }
+}

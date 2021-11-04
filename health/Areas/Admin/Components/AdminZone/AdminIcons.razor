@@ -1,0 +1,57 @@
+﻿<div class="dropdown-icons" tabindex="1" @onfocusout="@(() => _isActive = false)">
+    <span @onclick="(()=>_isActive=!_isActive)"><i class="fas fa-ellipsis-v"></i></span>
+    <ul class="dropdown-icons__menu @(_isActive?"active":"")">
+        @ChildContent
+        @foreach (var icon in _iconSet)
+        {
+        <li>
+            @if (icon.Equals("add"))
+            {
+                <AdminIcon ItemClick="(()=>OnAdd.InvokeAsync())">
+                    <i class="fas fa-plus"></i> Добавить
+                </AdminIcon>
+            }
+            @if (icon.Equals("edit"))
+            {
+                <AdminIcon ItemId="@ItemId" ItemClick="(()=>OnEdit.InvokeAsync())">
+                    <i class="far fa-edit"></i> Редактировать
+                </AdminIcon>
+            }
+            @if (icon.Equals("sort"))
+            {
+                <AdminIcon ItemId="@ItemId" ItemClick="(()=>OnSort.InvokeAsync())">
+                    <i class="fas fa-sort"></i> Сортировать
+                </AdminIcon>
+            }
+            @if (icon.Equals("remove") || icon.Equals("delete"))
+            {
+                <AdminIcon ItemId="@ItemId" ItemClick="(()=>OnDelete.InvokeAsync(ItemId))">
+                    <i class="far fa-trash-alt"></i> Удалить
+                </AdminIcon>
+            }
+        </li>
+        }
+    </ul>
+</div>
+
+@code{
+    [Parameter] public object ItemId { get; set; }
+    [Parameter] public string IconSet { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    [Parameter] public EventCallback<object> OnEdit { get; set; }
+    [Parameter] public EventCallback<object> OnSort { get; set; }
+    [Parameter] public EventCallback OnAdd { get; set; }
+    [Parameter] public EventCallback<object> OnDelete { get; set; }
+
+
+    List<string> _iconSet;
+
+    bool _isActive = false;
+
+    protected override void OnInitialized()
+    {
+        _iconSet = new List<string>();
+        _iconSet = IconSet.Replace(" ", "").Split(',').ToList();
+    }
+}

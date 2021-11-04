@@ -1,0 +1,54 @@
+﻿.ya-site-form__form {
+    .ya-site-form__search-input-layout-l {
+        input {
+            height: 36px !important;
+            padding: 4px !important;
+            border-top-left-radius: 6px;
+            border-bottom-left-radius: 6px;
+            line-height: 46px;
+        }
+    }
+
+    .ya-site-form__search-input-layout-r {
+        input {
+            background-color: #9AB51E;
+            border: none;
+            height: 36px;
+            padding: 0 10px;
+            color: white !important;
+            font-size: 120%;
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+            line-height: 26px;
+            cursor: pointer;
+        }
+    }
+}
+
+.b-head, b-top-wizard {
+    display: none;
+}
+
+.b-serp-list {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+
+    .b-serp-item {
+        .b-serp-item__title {
+            margin-bottom: 6px;
+
+            a {
+                color: $a-color !important;
+            }
+        }
+
+        .b-serp-item__number {
+            margin: 0 !important;
+        }
+
+        .b-serp-item__text {
+            display: block;
+            margin-top: 6px !important;
+        }
+    }
+}

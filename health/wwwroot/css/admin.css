@@ -1,0 +1,147 @@
+﻿@charset "UTF-8";
+.adminmenu {
+  margin: 24px 0;
+  padding: 5px;
+  background-color: #FAFBF4;
+  border: 1px solid #E4E6D3;
+  border-radius: 4px;
+  text-align: center; }
+  .adminmenu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex; }
+    .adminmenu ul li {
+      margin: 6px; }
+      .adminmenu ul li a {
+        color: #006262;
+        text-decoration: none;
+        transition: all ease .3s; }
+        .adminmenu ul li a:hover {
+          color: #004242; }
+
+@font-face {
+  font-family: Blogger Sans;
+  /* имя шрифта для CSS правил */
+  src: local("Blogger Sans"), url("../sass/fonts/bloggersans/Blogger Sans-Light.otf");
+  /* если шрифт не установлен, тогда загружаем его по указанному пути */ }
+
+.admin-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-top: 0px;
+  border: 1px solid #D6DBE9;
+  border-radius: 4px;
+  padding: 40px;
+  margin-bottom: 40px;
+  width: 100%; }
+
+.admin-item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 50px; }
+  .admin-item-list li {
+    position: relative;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    border-bottom: 1px dotted gray; }
+    .admin-item-list li:hover {
+      background-color: antiquewhite; }
+  .admin-item-list .level-0 {
+    text-transform: uppercase;
+    font-size: 120%; }
+  .admin-item-list .level-1 {
+    font-size: 100%;
+    padding-left: 20px; }
+    .admin-item-list .level-1:before {
+      content: '-'; }
+  .admin-item-list .child {
+    font-size: 90%;
+    padding-left: 30px; }
+  .admin-item-list .level-2 {
+    padding-left: 40px;
+    font-size: 80%; }
+    .admin-item-list .level-2:before {
+      content: '--'; }
+  .admin-item-list .level-3 {
+    padding-left: 80px;
+    font-size: 90%; }
+    .admin-item-list .level-3:before {
+      content: '--'; }
+
+.admin-icon {
+  color: red !important;
+  font-size: 0.9em !important;
+  opacity: 0.5;
+  transition: all ease .3s; }
+  .admin-icon:hover {
+    opacity: 1; }
+
+.dropdown-icons {
+  position: relative; }
+  .dropdown-icons span {
+    color: #404040;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all ease .3s; }
+    .dropdown-icons span:hover {
+      opacity: 1; }
+  .dropdown-icons .dropdown-icons__menu {
+    list-style: none;
+    position: absolute;
+    top: 100%;
+    left: -10px;
+    margin-top: 2px;
+    padding: 16px 20px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    will-change: visibility, opacity, transform;
+    visibility: hidden;
+    opacity: 1;
+    transform: translateY(0) scale(0.96);
+    transform-origin: center top;
+    transition: visibility 0.2s ease-out, opacity 0.2s ease-out, transform 0.2s ease-out; }
+    .dropdown-icons .dropdown-icons__menu li {
+      position: relative;
+      height: 34px; }
+      .dropdown-icons .dropdown-icons__menu li:first-child {
+        margin-top: 0; }
+      .dropdown-icons .dropdown-icons__menu li a {
+        white-space: nowrap;
+        font-size: 90%;
+        color: #404040;
+        text-decoration: none;
+        padding-left: 22px;
+        transition: all ease .2s; }
+        .dropdown-icons .dropdown-icons__menu li a i {
+          display: block;
+          position: absolute;
+          left: 0;
+          top: 4px; }
+        .dropdown-icons .dropdown-icons__menu li a:hover {
+          color: orangered; }
+    .dropdown-icons .dropdown-icons__menu.active {
+      z-index: 999;
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+      transition: visibility 0.2s ease-out, opacity 0.2s ease-out, transform 0.2s ease-out; }
+
+.admin-h1 {
+  position: relative; }
+  .admin-h1 h1 {
+    padding-left: 12px; }
+  .admin-h1 .dropdown-icons {
+    position: absolute;
+    top: 14px; }
+
+.title-list-admin {
+  position: relative; }
+  .title-list-admin a {
+    padding-left: 12px; }
+  .title-list-admin .dropdown-icons {
+    position: absolute;
+    top: 3px; }

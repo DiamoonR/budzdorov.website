@@ -1,0 +1,59 @@
+﻿@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+<EditHerb @ref="_editComponent" OnSave="Save"></EditHerb>
+
+<Confirm @ref="_confirmComponent" OnCancel="OnCancel" OnConfirm="OnConfirm">
+    <div class="text-danger">Вы действительно желаете удалить эту страницу?</div>
+</Confirm>
+
+@code {
+    [Parameter] public EventCallback OnChange { get; set; }
+
+    EditHerb _editComponent;
+    health.Models.Repository.HerbRepository rep;
+    health.Areas.Admin.Components.Confirm _confirmComponent;
+    int itemId;
+
+    protected override void OnInitialized()
+    {
+        _editComponent = new EditHerb();
+        _confirmComponent = new Confirm();
+    }
+
+    void Save()
+    {
+        OnChange.InvokeAsync();
+    }
+
+    public async Task EditClickEvent(int id)
+    {
+        await _editComponent.Show(id);
+    }
+
+    public void AddClickEvent()
+    {
+        _editComponent.Show();
+    }
+
+    public void DeleteClickEvent(int id)
+    {
+        _confirmComponent.Show();
+        itemId = id;
+    }
+
+    void OnConfirm()
+    {
+        using (rep = new Models.Repository.HerbRepository(db, connection))
+        {
+            rep.Delete(itemId);
+            itemId = 0;
+            _confirmComponent.Hide();
+        }
+        OnChange.InvokeAsync();
+    }
+    void OnCancel()
+    {
+        itemId = 0;
+        _confirmComponent.Hide();
+    }
+}

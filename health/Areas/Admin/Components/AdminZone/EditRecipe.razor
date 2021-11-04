@@ -1,0 +1,102 @@
+﻿@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+@using Sitko.Blazor.CKEditor.Bundle
+@if (isActive)
+{
+    <div class="modal-backdrop show"></div><div class="modal fade show" id="editRecipe" tabindex="-1" role="dialog" aria-labelledby="editRecipe" aria-hidden="true" style="display:block">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                @if (_model == null || _loading)
+                {
+                    <PageLoader />
+                }
+                else
+                {
+                    <EditForm Model="@_model">
+                        <div class="modal-header">
+                            <h5 class="modal-title">@title</h5>
+                            <button type="button" @onclick="Hide" class="btn-close" aria-label="Close">
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" @bind-value="_model.RecipeId" />
+                            <input type="hidden" @bind-value="_model.DiseaseId" />
+                            <input type="hidden" @bind-value="_model.Rank" />
+                            <div class="row">
+                                <div class="col">
+                                    <label>Содержание</label>
+                                    <CKEditor @bind-Value="@_model.Content" Config="_config"></CKEditor>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button @onclick="Save" type="button" class="btn btn-primary">Сохранить</button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    bool isActive = false;
+    string title;
+    bool _isEdit = false;
+    bool _loading = false;
+
+    Models.Repository.RecipeRepository rep;
+
+
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    Recipe _model;
+
+    public void Hide() => isActive = false;
+
+    public void Add(int parentId)
+    {
+        isActive = true;
+        _config = CKEditorBundleOptions.DefaultConfig.WithHtmlEditing();
+        _isEdit = false;
+        title = "Добавить рецепт";
+        _model = new Recipe();
+        _model.DiseaseId = parentId;
+        StateHasChanged();
+    }
+
+    public async Task Show(int id)
+    {
+        isActive = true;
+        _config = CKEditorBundleOptions.DefaultConfig.WithHtmlEditing();
+        _isEdit = true;
+        title = "Редактировать рецепт";
+        using (rep = new Models.Repository.RecipeRepository(db, connection))
+        {
+            _loading = true;
+            _model = await rep.FindAsync(id);
+            _loading = false;
+        }
+        StateHasChanged();
+    }
+
+    async Task Save()
+    {
+        using (rep = new Models.Repository.RecipeRepository(db, connection))
+        {
+            if (_model.RecipeId > 0)
+            {
+                rep.Update(_model);
+            }
+            else
+            {
+                rep.Add(_model);
+            }
+            rep.Save();
+        }
+        Hide();
+        await OnSave.InvokeAsync();
+    }
+
+    private CKEditorConfig _config;
+}

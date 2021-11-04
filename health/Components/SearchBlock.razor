@@ -1,0 +1,9 @@
+﻿<div class="search-block">
+    <Letters OnLetterClick="OnLetterClick" ModelName="@ModelName"/>
+    <SearchItem ModelName="@ModelName"/>
+</div>
+
+@code {
+    [Parameter] public EventCallback<char> OnLetterClick { get; set; }
+    [Parameter] public string ModelName { get; set; }
+}

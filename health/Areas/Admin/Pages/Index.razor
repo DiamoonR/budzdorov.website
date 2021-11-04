@@ -1,0 +1,16 @@
+﻿@page "/admin"
+@inject IHeadElementHelper HeadElementHelper
+@using static Toolbelt.Blazor.HeadElement.MetaElement
+@attribute [Authorize]
+<h1>Администрирование</h1>
+<health.Areas.Admin.Components.NavAdmin></health.Areas.Admin.Components.NavAdmin>
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await HeadElementHelper.SetTitleAsync("Администрирование");
+        await HeadElementHelper.SetMetaElementsAsync(
+          ByName("description", "Администрированиие сайта"),
+          ByName("keywords", "админка")
+        );
+    }
+}

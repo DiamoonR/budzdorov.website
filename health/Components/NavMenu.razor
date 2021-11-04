@@ -1,0 +1,22 @@
+﻿@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+<ul>
+    @foreach (var item in menu)
+    {
+        <li>
+            <ins></ins>
+            <NavLink class="item" href="@item.Url" Match="NavLinkMatch.All">
+                @item.Name
+            </NavLink>
+        </li>
+    }
+</ul>
+
+@code {
+    List<Models.Menu> menu;
+    protected override void OnInitialized()
+    {
+        Models.Repository.MenuRepository rep = new Models.Repository.MenuRepository(db, connection);
+        menu = rep.List();
+    }
+}

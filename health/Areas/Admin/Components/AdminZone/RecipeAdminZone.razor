@@ -1,0 +1,69 @@
+﻿@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+<EditRecipe @ref="_editComponent" OnSave="Save"></EditRecipe>
+
+<SortItem @ref="_sortComponent" OnSave="Save"></SortItem>
+
+<Confirm @ref="_confirmComponent" OnCancel="OnCancel" OnConfirm="OnConfirm">
+    <div class="text-danger">Вы действительно желаете удалить эту страницу?</div>
+</Confirm>
+
+@code {
+    [Parameter] public EventCallback OnChange { get; set; }
+
+    EditRecipe _editComponent;
+    SortItem _sortComponent;
+    health.Models.Repository.RecipeRepository rep;
+    health.Areas.Admin.Components.Confirm _confirmComponent;
+    int itemId;
+
+    protected override void OnInitialized()
+    {
+        _editComponent = new EditRecipe();
+        _sortComponent = new SortItem();
+        _confirmComponent = new Confirm();
+    }
+
+    void Save()
+    {
+        OnChange.InvokeAsync();
+    }
+
+    public async Task EditClickEvent(int id)
+    {
+        await _editComponent.Show(id);
+    }
+
+    public void SortClickEvent(int id)
+    {
+        _sortComponent.Show(id, "Recipe");
+    }
+
+    public void AddClickEvent(int parentId)
+    {
+        _editComponent.Add(parentId);
+    }
+
+    public void DeleteClickEvent(int id)
+    {
+        _confirmComponent.Show();
+        StateHasChanged();
+        itemId = id;
+    }
+
+    void OnConfirm()
+    {
+        using (rep = new Models.Repository.RecipeRepository(db, connection))
+        {
+            rep.Delete(itemId);
+            itemId = 0;
+            _confirmComponent.Hide();
+        }
+        OnChange.InvokeAsync();
+    }
+    void OnCancel()
+    {
+        itemId = 0;
+        _confirmComponent.Hide();
+    }
+}

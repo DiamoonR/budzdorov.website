@@ -1,0 +1,35 @@
+﻿@if (isActive)
+{
+    <div class="modal-backdrop show"></div>
+
+    <div class="modal fade show" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModal" aria-hidden="true" style="display:block">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" @onclick="Hide" class="btn-close" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+                <div class="modal-footer">
+                    <button @onclick="OnConfirm" type="button" class="btn btn-danger">Да</button>
+                    <button @onclick="OnCancel" type="button" class="btn btn-primary">Нет</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    bool isActive = false;
+
+    [Parameter] public string Title { get; set; } = "Подтверждение";
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    public void Show() => isActive = true;
+    public void Hide() => isActive = false;
+}

@@ -1,0 +1,109 @@
+﻿@page "/admin/pages"
+@inject IHeadElementHelper HeadElementHelper
+@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+
+@attribute [Authorize]
+
+<Title>Администрирование: страницы</Title>
+
+<NavAdmin></NavAdmin>
+
+<h1>Страницы</h1>
+
+@if (pagesList == null)
+{
+    <span>Загрузка....</span>
+}
+else
+{
+    <div class="pt-4">
+        <ul class="admin-list">
+            @foreach (var item in pagesList)
+            {
+                <li>
+                    <div class="row">
+                        <div class="col-2 cursor-grabbing">@item.Name</div>
+                        <div class="col-2">
+                            <a class="cursor-pointer" @onclick="(()=>EditSelectedPage(item))"><i class="far fa-edit"></i></a>
+                            <a class="cursor-pointer" @onclick="(()=>DeletePage(item))"><i class="far fa-trash-alt"></i></a>
+                        </div>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+}
+<button @onclick="AddPage" class="btn btn-primary">Добавить</button>
+
+
+<EditPage @ref="editPageComponent" OnSave="SavePage" MyPage="pageToEdit"/>
+
+<Confirm @ref="confirmComponent" OnCancel="OnCancel" OnConfirm="OnConfirm">
+    <div class="text-danger">Вы действительно желаете удалить эту страницу?</div>
+</Confirm>
+
+@code {
+    IList<MyPage> pagesList;
+    MyPage pageToEdit;
+    MyPage pageToDelete;
+    Models.Repository.MyPageRepository rep;
+
+    protected override async Task OnInitializedAsync()
+    {
+        rep = new Models.Repository.MyPageRepository(db, connection);
+        pagesList = await rep.FullListAsync();
+        pageToEdit = new MyPage();
+    }
+
+
+    health.Areas.Admin.Components.EditPage editPageComponent;
+
+    health.Areas.Admin.Components.Confirm confirmComponent;
+
+    void DeletePage(MyPage model)
+    {
+        confirmComponent.Show();
+        pageToDelete = model;
+    }
+    async Task OnConfirm()
+    {
+        rep.Delete(pageToDelete.MyPageId);
+        pageToDelete = null;
+        confirmComponent.Hide();
+        pagesList = await rep.FullListAsync();
+    }
+    void OnCancel()
+    {
+        pageToDelete = null;
+        confirmComponent.Hide();
+    }
+
+    async Task SavePage()
+    {
+        if (pageToEdit.MyPageId > 0)
+        {
+            rep.Update(pageToEdit);
+        }
+        else
+        {
+            rep.Add(pageToEdit);
+            pagesList = await rep.FullListAsync();
+        }
+        pageToEdit = null;
+        rep.Save();
+        editPageComponent.Hide();
+    }
+
+    void EditSelectedPage(MyPage model)
+    {
+        pageToEdit = model;
+        editPageComponent.Show();
+    }
+
+    void AddPage()
+    {
+        pageToEdit = new MyPage();
+        editPageComponent.Show();
+    }
+}

@@ -1,0 +1,35 @@
+﻿.alphabet {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+
+    li {
+        display: inline-block;
+        //font-family: Arial;
+        font-size: 15px;
+        letter-spacing: 3px;
+        font-size:120%;
+        padding:0 3px;
+
+        a {
+            color: $a-color;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all ease .3s;
+            text-align: center;
+
+            &:hover {
+                border-bottom: 1px dotted $a-color;
+                border-top: 1px dotted $a-color;
+                color: darken($a-color,20%);
+            }
+        }
+
+        &.active {
+            color: green;
+            font-size: 160%;
+            font-weight: bold;
+        }
+    }
+}

@@ -1,0 +1,45 @@
+﻿@if (Recipes != null)
+{
+<ul class="recipes">
+    @if (isAdmin)
+    {
+        foreach (var item in Recipes.OrderByDescending(s => s.Rank))
+        {
+            <li class="recipes-item admin">
+                <health.Areas.Admin.Components.AdminZone.AdminIcons ItemId="@item.RecipeId" IconSet="edit,remove,sort" OnDelete="(()=>RecipeAdminZone.DeleteClickEvent(item.RecipeId))" OnEdit="(()=>RecipeAdminZone.EditClickEvent(item.RecipeId))" OnSort="(()=>RecipeAdminZone.SortClickEvent(item.RecipeId))" />
+                @((MarkupString)item.Content)
+            </li>
+        }
+    }
+    else
+    {
+        foreach (var item in Recipes.OrderByDescending(s=>s.Rank))
+        {
+            <li class="recipes-item">@((MarkupString)item.Content)</li>
+        }
+    }
+</ul>
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    bool isAdmin = false;
+
+    [Parameter]
+    public List<Recipe> Recipes { get; set; }
+
+    [Parameter]
+    public health.Areas.Admin.Components.AdminZone.RecipeAdminZone RecipeAdminZone { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {        
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            isAdmin = true;
+        }
+    }
+}

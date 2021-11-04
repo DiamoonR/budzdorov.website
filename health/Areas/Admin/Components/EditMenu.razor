@@ -1,0 +1,58 @@
+﻿@if (isActive)
+{
+    <div class="modal-backdrop show" @onclick="Hide"></div>
+
+    <div class="modal fade show" id="editMenu" tabindex="-1" role="dialog" aria-labelledby="editMenu" aria-hidden="true" style="display:block">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@title</h5>
+                    <button type="button" @onclick="Hide" class="btn-close" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" @bind-value="Menu.MenuId" />
+                    <input type="hidden" @bind-value="Menu.Rank" />
+                    <div class="row">
+                        <div class="col">
+                            <label>Название</label>
+                            <input @bind-value="Menu.Name" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label>Ссылка</label>
+                            <input @bind-value="Menu.Url" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button @onclick="OnSave" type="button" class="btn btn-primary">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    bool isActive = false;
+    string title;
+
+    [Parameter] public Menu Menu { get; set; }
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    public void Show() => isActive = true;
+    public void Hide() => isActive = false;
+
+    protected override void OnParametersSet()
+    {
+        if (Menu.MenuId==0)
+        {
+            title = "Добавить меню";
+        }
+        else
+        {
+            title = "Редактировать меню";
+        }
+    }
+}

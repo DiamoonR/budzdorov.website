@@ -1,0 +1,24 @@
+﻿@inject IJSRuntime _jsRuntime;
+@inject NavigationManager _navigationManager;
+
+<AuthorizeView>
+    <Authorized>
+        <a href="#" @onclick="LogOut"><i class="fas fa-sign-out-alt"></i></a>
+        <a href="/admin"><i class="fas fa-user-cog"></i></a>
+    </Authorized>
+    <NotAuthorized>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{
+    async Task LogOut()
+    {
+        await _jsRuntime.InvokeAsync<string>("removeCookie", ".AspNetCore.Cookie");
+
+        await Task.Run(() =>
+        {
+            System.Threading.Thread.Sleep(1500);
+            _navigationManager.NavigateTo("/", true);
+        });
+    }
+}

@@ -1,0 +1,104 @@
+﻿@page "/admin/menu"
+@inject IHeadElementHelper HeadElementHelper
+@inject Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+@namespace health.Areas.Admin.Util
+
+@attribute [Authorize]
+
+<Title>Администрирование: меню</Title>
+
+<NavAdmin></NavAdmin>
+
+<h1>Меню</h1>
+
+<div class="pt-4">
+    <div class="grid-container">
+        <Dropzone Items="menuList" TItem="Menu" OnItemDrop="SortMenu">
+            <div class="row">
+                <div class="col-2 cursor-grabbing">@context.Name</div>
+                <div class="col-2">
+                    <a class="cursor-pointer" @onclick="(()=>EditSelectedMenu(context))"><i class="far fa-edit"></i></a>
+                    <a class="cursor-pointer" @onclick="(()=>DeleteMenu(context))"><i class="far fa-trash-alt"></i></a>                    
+                </div>
+            </div>
+        </Dropzone>
+    </div>
+</div>
+<button href="#" @onclick="AddMenu" class="btn btn-primary">Добавить</button>
+
+
+<EditMenu @ref="editMenuComponent" OnSave="SaveMenu" Menu="menuToEdit">
+</EditMenu>
+
+<Confirm @ref="confirmComponent" OnCancel="OnCancel" OnConfirm="OnConfirm">
+    <div class="text-danger">Вы действительно желаете удалить это меню?</div>
+</Confirm>
+
+@code {
+    List<Models.Menu> menuList;
+    Menu menuToEdit;
+    Menu menuToDelete;
+    Models.Repository.MenuRepository rep;
+    protected override void OnInitialized()
+    {
+        rep = new Models.Repository.MenuRepository(db, connection);
+        menuList = rep.List();
+        menuToEdit = new Menu();
+    }
+
+    void SortMenu()
+    {
+        AdminActions.Sort<Menu>(menuList, db, connection);
+    }
+
+
+    health.Areas.Admin.Components.EditMenu editMenuComponent;
+
+    health.Areas.Admin.Components.Confirm confirmComponent;
+
+    void DeleteMenu(Menu menu)
+    {
+        confirmComponent.Show();
+        menuToDelete = menu;
+    }
+    void OnConfirm()
+    {
+        rep.Delete(menuToDelete.MenuId);
+        menuToDelete = null;
+        confirmComponent.Hide();
+        menuList = rep.List();
+    }
+    void OnCancel()
+    {
+        menuToDelete = null;
+        confirmComponent.Hide();
+    }
+
+    void SaveMenu()
+    {
+        if (menuToEdit.MenuId > 0)
+        {
+            rep.Update(menuToEdit);
+        }
+        else
+        {
+            rep.Add(menuToEdit);
+            menuList = rep.List();
+        }
+        rep.Save();
+        editMenuComponent.Hide();
+    }
+
+    void EditSelectedMenu(Menu menu)
+    {
+        menuToEdit = menu;
+        editMenuComponent.Show();
+    }
+
+    void AddMenu()
+    {
+        menuToEdit = new Menu();
+        editMenuComponent.Show();
+    }
+}

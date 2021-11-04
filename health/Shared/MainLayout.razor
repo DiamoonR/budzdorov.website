@@ -1,0 +1,67 @@
+﻿@inherits LayoutComponentBase
+
+    <!-- Sidebar Menu -->
+    <div class="ui vertical inverted sidebar menu mobile-nav">        
+    </div>
+
+    <header class="container p-0">
+        <MobileMenu/>
+        <div class="inner-header">
+            <a href="/">
+                <div class="logo" title="На главную"></div>
+            </a>
+            <div class="login">
+                <LoginDisplay />
+            </div>
+        </div>
+        <div class="menu">
+            <NavMenu />
+        </div>
+        <div class="search">
+            @*<form asp-controller="Search" asp-action="Index" method="post" class="ui form state-hidden">
+                <div class="ui mini fluid action input">
+                    <input type="text" name="searchText" placeholder="Поиск по сайту...">
+                    <button class="ui olive mini button">Найти</button>
+                </div>
+            </form>*@
+            @*<div class="ya-site-form ya-site-form_inited_no" onclick="return {'action':'/search','arrow':false,'bg':'transparent','language':'ru','suggest':true,'target':'_self','tld':'ru','type':2,'usebigdictionary':true,'searchid':2345526,'input_placeholder':'Поиск по сайту','input_placeholderColor':'#000000'}">
+                <form action="https://yandex.ru/search/site/" method="get" target="_self" accept-charset="utf-8" class="ui form">
+                    <div class="ui mini fluid action input">
+                        <input type="hidden" name="searchid" value="2345526" />
+                        <input type="hidden" name="l10n" value="ru" />
+                        <input type="hidden" name="reqenc" value="" />
+                        <input type="search" name="text" value="" />
+                    </div>
+                </form>
+            </div>
+            <style type="text/css">
+                .ya-page_js_yes .ya-site-form_inited_no {
+                    display: none;
+                }
+            </style>*@
+            @*<script type="text/javascript">(function (w, d, c) { var s = d.createElement('script'), h = d.getElementsByTagName('script')[0], e = d.documentElement; if ((' ' + e.className + ' ').indexOf(' ya-page_js_yes ') === -1) { e.className += ' ya-page_js_yes'; } s.type = 'text/javascript'; s.async = true; s.charset = 'utf-8'; s.src = (d.location.protocol === 'https:' ? 'https:' : 'http:') + '//site.yandex.net/v2.0/js/all.js'; h.parentNode.insertBefore(s, h); (w[c] || (w[c] = [])).push(function () { Ya.Site.Form.init() }) })(window, document, 'yandex_site_callbacks');</script>*@
+        </div>
+    </header>
+    <div class="container main">
+        <div class="content">
+            @Body
+        </div>
+        <div class="bottom">
+            <FooterNav/>
+        </div>
+    </div>
+    <div class="footer container">
+        <div class="ui container">
+            <div class="ui stackable grid">
+                <div class="four wide column">
+                </div>
+                <div class="eight wide column">
+                </div>
+                <div class="four wide column">
+                    <div class="counters">                        
+                        @*@await Component.InvokeAsync("FooterCode")*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

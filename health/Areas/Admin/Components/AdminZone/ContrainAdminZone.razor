@@ -1,0 +1,91 @@
+﻿@inject health.Data.SiteContext db
+@inject IOptions<health.Options.ConnectionStringOptions> connection
+@using Sitko.Blazor.CKEditor.Bundle
+@if (isActive)
+{
+    <div class="modal-backdrop show"></div><div class="modal fade show" id="editContraindication" tabindex="-1" role="dialog" aria-labelledby="editContraindication" aria-hidden="true" style="display:block">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                @if (_model == null || _loading)
+                {
+                    <PageLoader />
+                }
+                else
+                {
+                    <EditForm Model="@_model">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Симптомы</h5>
+                            <button type="button" @onclick="Hide" class="btn-close" aria-label="Close">
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" @bind-value="_model.ContraindicationId" />
+                            <input type="hidden" @bind-value="_model.HerbId" />
+                            <div class="row">
+                                <div class="col">
+                                    <label>Содержание</label>
+                                    <CKEditor @bind-Value="@_model.Content" Config="_config"></CKEditor>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button @onclick="Save" type="button" class="btn btn-primary">Сохранить</button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    bool isActive = false;
+    bool _loading = false;
+
+    Models.Repository.ContraindicationRepository rep;
+
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    Contraindication _model;
+
+    public void Hide() => isActive = false;
+
+
+    public async Task Show(int id)
+    {
+        isActive = true;
+        _config = CKEditorBundleOptions.DefaultConfig.WithHtmlEditing();
+        using (rep = new Models.Repository.ContraindicationRepository(db, connection))
+        {
+            _loading = true;
+            _model = await rep.FindByHerbAsync(id);
+            if (_model == null)
+            {
+                _model = new Contraindication();
+                _model.HerbId = id;
+            }
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task Save()
+    {
+        using (rep = new Models.Repository.ContraindicationRepository(db, connection))
+        {
+            if (_model.ContraindicationId > 0)
+            {
+                rep.Update(_model);
+            }
+            else
+            {
+                rep.Add(_model);
+            }
+            rep.Save();
+        }
+        Hide();
+        await OnSave.InvokeAsync();
+    }
+
+    private CKEditorConfig _config;
+}

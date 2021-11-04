@@ -1,0 +1,42 @@
+﻿<ul class="alphabet">
+    @foreach (char item in _alphabet)
+    {
+        string letterClass = "";
+        if (_selectedItem == item)
+        {
+            letterClass = "active";
+        }
+        string url = string.Empty;
+        if (ModelName == "Disease")
+        {
+            url = $"{health.Util.Constants.URL_DISEASE}?letter={item.ToString()}";
+        }
+        if (ModelName == "Herb")
+        {
+            url = $"{health.Util.Constants.URL_HERB}?letter={item.ToString()}";
+        }
+        <li class="@letterClass"><a href="@url" @onclick="(()=>SelectLetter(item))">@item.ToString()</a></li>
+    }
+</ul>
+
+@code {
+    [Parameter] public char Letter { get; set; } = new char();
+    [Parameter] public EventCallback<char> OnLetterClick { get; set; }
+    [Parameter] public string ModelName { get; set; }
+
+
+    char _selectedItem = new char();
+
+    protected override void OnInitialized()
+    {
+        _selectedItem = Letter;
+    }
+
+    void SelectLetter(char letter)
+    {
+        _selectedItem = letter;
+        OnLetterClick.InvokeAsync(letter);
+    }
+
+    List<char> _alphabet = new List<char> { 'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Э', 'Ю', 'Я' };
+}

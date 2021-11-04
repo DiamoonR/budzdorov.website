@@ -1,0 +1,9 @@
+﻿<a class="cursor-pointer" @onclick="(()=>ItemClick.InvokeAsync(ItemId))">
+    @ChildContent
+</a>
+
+@code {
+    [Parameter] public object ItemId { get; set; }
+    [Parameter] public EventCallback<object> ItemClick { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+}
