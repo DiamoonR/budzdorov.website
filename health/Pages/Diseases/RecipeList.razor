@@ -3,7 +3,7 @@
 <ul class="recipes">
     @if (isAdmin)
     {
-        foreach (var item in Recipes.OrderByDescending(s => s.Rank))
+        foreach (var item in Recipes.OrderBy(s => s.Rank))
         {
             <li class="recipes-item admin">
                 <health.Areas.Admin.Components.AdminZone.AdminIcons ItemId="@item.RecipeId" IconSet="edit,remove,sort" OnDelete="(()=>RecipeAdminZone.DeleteClickEvent(item.RecipeId))" OnEdit="(()=>RecipeAdminZone.EditClickEvent(item.RecipeId))" OnSort="(()=>RecipeAdminZone.SortClickEvent(item.RecipeId))" />
@@ -13,7 +13,7 @@
     }
     else
     {
-        foreach (var item in Recipes.OrderByDescending(s=>s.Rank))
+        foreach (var item in Recipes.OrderBy(s=>s.Rank))
         {
             <li class="recipes-item">@((MarkupString)item.Content)</li>
         }

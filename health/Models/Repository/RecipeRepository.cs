@@ -99,7 +99,7 @@ namespace health.Models.Repository
                 Recipe recipe2;
                 switch (direction)
                 {
-                    case "up":
+                    case "down":
                         recipe2 = db.Recipes.Where(s=>s.DiseaseId==recipe.DiseaseId).Where(s => s.Rank > recipe.Rank).OrderBy(s => s.Rank).FirstOrDefault();
                         break;
                     default:
