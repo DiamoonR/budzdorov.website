@@ -24,9 +24,9 @@
                                 <label>Направление:</label>
                                 <div>
                                     <label>Вверх</label>
-                                    <input type="radio" name="Direction" value="up" checked @onchange="OnChangeDirection" />
+                                    <input type="radio" name="Direction"  value="up" checked="@(_model.Direction == "up")" @onchange="OnChangeDirection" />
                                     <label>Вниз</label>
-                                    <input type="radio" name="Direction" value="down" @onchange="OnChangeDirection" />
+                                    <input type="radio" name="Direction" value="down" checked="@(_model.Direction == "down")" @onchange="OnChangeDirection" />
                                 </div>
                             </div>
                         </div>
@@ -44,6 +44,7 @@
     bool isActive = false;
     string directionValueUp = "up";
     string directionValueDown = "down";
+    string direction = "up";
 
     [Parameter] public EventCallback OnSave { get; set; }
 
